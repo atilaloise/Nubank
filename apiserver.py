@@ -45,7 +45,23 @@ class authorization(Resource):
 
 
 
+#4. There should not be more than 10 transactions on the same merchant
 
+	def securityCheckMerchant(self, securityCheckMerchant):
+	count =0
+	F=True # just an aux flag 
+	P=0 # Just a index position reference
+	while F:
+	    a = self.lastTransactions.find(self.merchant,P) #find() will return -1 if merchant is not found
+	    if a==-1:          
+	        F=False
+	    else:               # if word is there, increase index counter and stay in loop
+	        MtCounter+=1 # Merchant Transaction Counter :P
+	        P=a+1
+
+	if MtCounter > 10:
+		deniedReasons = "You cant use more than 90% of your limit on your first transaction"		
+	 
 
 api.add_resource(authorization, '/authorization')
 
