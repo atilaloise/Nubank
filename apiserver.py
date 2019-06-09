@@ -36,6 +36,16 @@ class authorization(Resource):
 			deniedReasons = "Your card is blocked"
 		else deniedReasons = " "
 
+#3. The first transaction shouldn't be above 90% of the limit
+
+	def firstTransaction(self, firstTransaction):
+		if (self.firstTransaction):
+			if self.amount > self.limit * 0.9:
+				deniedReasons = "You cant use more than 90% of your limit on your first transaction"
+
+
+
+
 
 api.add_resource(authorization, '/authorization')
 
