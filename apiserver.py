@@ -22,6 +22,12 @@ class authorization(Resource):
    	    	firstTransaction = True    
 
 
+#1. The transaction amount should not be above limit
+
+	def checklimits(self, checklimits):
+		if self.amount > self.limit:
+			deniedReasons = "You can't exceed your limit"
+		else deniedReasons = " "
 
 
 
