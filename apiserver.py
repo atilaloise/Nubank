@@ -11,8 +11,10 @@ api = Api(app)
 
 #1. The transaction amount should not be above limit
 
-def checkLimits(self, checklimits):
-	if self.amount > self.limit:
+def checkLimits(amount, limit):
+	print(amount)
+	print(limit)
+	if amount>limit:
 		return "You can't exceed your limit"
 	else:
 		return True
@@ -20,30 +22,42 @@ def checkLimits(self, checklimits):
 
 #2. No transaction should be approved when the card is blocked
 
-def checkCard(self, checkCard):
-	if self.cardIsActive !=  True:
-		return "Your card is blocked"
-	else:
+def checkCard(cardIsActive):
+	print(cardIsActive)
+	if cardIsActive == 'True':
 		return True
-	
+	else:
+		return "Your card is blocked"
+		
 
 #3. The first transaction shouldn't be above 90% of the limit
 
-def firstTransaction(self, firstTransaction):
-	if (self.firstTransaction):
-		if self.amount > self.limit * 0.9:
+def checkFirstTransaction(lastTransactions, amount, limit):
+	# print(amount)
+	# print(limit)
+	# print(lastTransactions[0])
+	# print(type(lastTransactions[0]))
+	# print(bool(lastTransactions[0]))
+	if bool(lastTransactions[0]) == False:
+		if amount > limit * 0.9:
 			return "You cant use more than 90% of your limit on your first transaction"
 		else:
 			return True
+	else:
+		return True
 
 #4. There should not be more than 10 transactions on the same merchant
 
-def securityCheckMerchant(self, securityCheckMerchant):
-	count=0
+def securityCheckMerchant(lastTransactions, merchant):
+	print(lastTransactions)
+	print(merchant)
+	lastTransactions = ', '.join(lastTransactions)
+
+	MtCounter=0
 	F=True # just an aux flag 
 	P=0 # Just a index position reference
 	while F:
-	    a = self.lastTransactions.find(self.merchant,P) #find() will return -1 if merchant is not found
+	    a = lastTransactions.find(merchant,P) #find() will return -1 if merchant is not found
 	    if a==-1:          
 	        F=False
 	    else:               # if word is there, increase index counter and stay in loop
@@ -56,53 +70,79 @@ def securityCheckMerchant(self, securityCheckMerchant):
 		return True
 	 
 #5. Merchant denylist
-def securityMerchantDenyList(self, securityMerchantDenyList):
-	
-	a = self.denylist.find(self.merchant) #find() will return -1 if merchant is not found
+def securityMerchantDenyList(merchant, denylist):
+	denylist = ', '.join(denylist)
+	a = denylist.find(merchant) #find() will return -1 if merchant is not found
 	if a!=-1:          
 	   return "This merchant is in our deny list"
 	else:
 		return True
 
 #6. There should not be more than 3 transactions on a 2 minutes interval   
-def securityTransactionInterval(self, securityTransactionInterval):
+def securityTransactionInterval(lastTransactions, time):
 
-	if (self.lastTransactions):
+	if (lastTransactions):
+		if len(lastTransactions)>2:
+			#get the third transaction datetime
+			thirdLastTransaction = lastTransactions[2] 
 		
-		#get the third transaction datetime
+			if (thirdLastTransaction):
 
-		thirdLastTransaction = self.lastTransactions[2] 
+				fmt = '%Y-%m-%d %H:%M:%S'
+				thirdLastTransactionDateTime = re.findall(r'\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}', thirdLastTransaction)	
+				d1 = datetime.strptime(thirdLastTransactionDateTime[0], fmt)
+				d2 = datetime.strptime(time, fmt)
+				intervalSinceThirdTransaction = (d2-d1).seconds /60
 				
-		if (thirdLastTransaction):
-			fmt = '%Y-%m-%d %H:%M:%S'
-			thirdLastTransactionDateTime = re.findall(r'\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}', thirdLastTransaction)	
-			d1 = datetime.strptime(thirdLastTransactionDateTime[0], fmt)
-			d2 = datetime.strptime(datetime.now().strftime(fmt), fmt)
-
-			intervalSinceThirdTransaction = (d2-d1).seconds /60
-
-			if intervalSinceThirdTransaction <= 2:
-				return "Too many transactions in 2 minutes interval"
+				print(intervalSinceThirdTransaction)
+				print(type(intervalSinceThirdTransaction))
+				
+				if intervalSinceThirdTransaction <= 2:
+					return "Too many transactions in 2 minutes interval"
+				else:
+					return True
 			else:
 				return True
+		else:
+			return True
+	else:
+		return True
+
 
 
 class authorization(Resource):
 	def post(self):
-		print(request.json)
+		#print(request.json)
+		#everything is comming as string, so don't forget to convert data types
+		#I do not convert booleans because if the variable has a value, python always consider as true. So, let this as string.
+		#if there is something specific, we treat on the fly :P
 		cardIsActive = request.json[0]['cardIsActive']
-		limit = request.json[0]['limit']
+		limit = float(request.json[0]['limit'])
 		denylist = request.json[0]['denylist']
 		isInsideAllowlist = request.json[0]['isInsideAllowlist']
 		merchant = request.json[1]['merchant']
-		amount = request.json[1]['amount']
+		amount = float(request.json[1]['amount'])
 		time = request.json[1]['time']
-		if (request.json[2]['lastTransactions']):
-			lastTransactions = request.json[2]['lastTransactions']
+		if (request.json[2]['lastTransactions']) =="":
+			lastTransactions = False
 		else:
-			firstTransaction = True    
+			lastTransactions = request.json[2]['lastTransactions']
+
+			
+		#return (checkLimits(amount, limit))
+		#return (checkCard(cardIsActive))
+		#return (checkFirstTransaction(lastTransactions, amount, limit))
+		#return (securityCheckMerchant(lastTransactions, merchant))
+		#return (securityMerchantDenyList(merchant, denylist))
+		return (securityTransactionInterval(lastTransactions, time))
 		
-		return {'status':'success'}
+
+
+
+
+
+		#return {'status':'success'}
+
 		
 
 
