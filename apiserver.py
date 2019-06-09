@@ -60,8 +60,16 @@ class authorization(Resource):
 	        P=a+1
 
 	if MtCounter > 10:
-		deniedReasons = "You cant use more than 90% of your limit on your first transaction"		
+		deniedReasons = "There should not be more than 10 transactions on the same merchant"
 	 
+
+#5. Merchant denylist
+	def securityMerchantDenyList(self, securityMerchantDenyList):
+		
+		a = self.denylist.find(self.merchant) #find() will return -1 if merchant is not found
+		if a!=-1:          
+		   deniedReasons = "This merchant is in our deny list"
+
 
 api.add_resource(authorization, '/authorization')
 
