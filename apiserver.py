@@ -10,19 +10,19 @@ app = Flask(__name__)
 api = Api(app)
 
 class authorization(Resource):
-	def get(self):
-        print(request.json)
-        cardIsActive = request.json['cardIsActive']
-        limit = request.json['limit']
-        denylist = request.json['denylist']
-        isInsideAllowlist = request.json['isInsideAllowlist']
-        merchant = request.json['merchant']
-        amount = request.json['amount']
-        time = request.json['time']
-        if (request.json['lastTransactions']):
-   	        lastTransactions = request.json['lastTransactions']
-   	    else
-   	    	firstTransaction = True    
+	def post(self):
+		print(request.json)
+		cardIsActive = request.json['cardIsActive']
+		limit = request.json['limit']
+		denylist = request.json['denylist']
+		isInsideAllowlist = request.json['isInsideAllowlist']
+		merchant = request.json['merchant']
+		amount = request.json['amount']
+		time = request.json['time']
+		if (request.json['lastTransactions']):
+			lastTransactions = request.json['lastTransactions']
+		else:
+			firstTransaction = True    
 
 
 #1. The transaction amount should not be above limit
@@ -49,19 +49,19 @@ class authorization(Resource):
 #4. There should not be more than 10 transactions on the same merchant
 
 	def securityCheckMerchant(self, securityCheckMerchant):
-	count =0
-	F=True # just an aux flag 
-	P=0 # Just a index position reference
-	while F:
-	    a = self.lastTransactions.find(self.merchant,P) #find() will return -1 if merchant is not found
-	    if a==-1:          
-	        F=False
-	    else:               # if word is there, increase index counter and stay in loop
-	        MtCounter+=1 # Merchant Transaction Counter :P
-	        P=a+1
+		count=0
+		F=True # just an aux flag 
+		P=0 # Just a index position reference
+		while F:
+		    a = self.lastTransactions.find(self.merchant,P) #find() will return -1 if merchant is not found
+		    if a==-1:          
+		        F=False
+		    else:               # if word is there, increase index counter and stay in loop
+		        MtCounter+=1 # Merchant Transaction Counter :P
+		        P=a+1
 
-	if MtCounter > 10:
-		deniedReasonsCheckMerchant = "There should not be more than 10 transactions on the same merchant"
+		if MtCounter > 10:
+			deniedReasonsCheckMerchant = "There should not be more than 10 transactions on the same merchant"
 	 
 #5. Merchant denylist
 	def securityMerchantDenyList(self, securityMerchantDenyList):
