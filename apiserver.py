@@ -90,18 +90,20 @@ def securityTransactionInterval(self, securityTransactionInterval):
 class authorization(Resource):
 	def post(self):
 		print(request.json)
-		cardIsActive = request.json['cardIsActive']
-		limit = request.json['limit']
-		denylist = request.json['denylist']
-		isInsideAllowlist = request.json['isInsideAllowlist']
-		merchant = request.json['merchant']
-		amount = request.json['amount']
-		time = request.json['time']
-		if (request.json['lastTransactions']):
-			lastTransactions = request.json['lastTransactions']
+		cardIsActive = request.json[0]['cardIsActive']
+		limit = request.json[0]['limit']
+		denylist = request.json[0]['denylist']
+		isInsideAllowlist = request.json[0]['isInsideAllowlist']
+		merchant = request.json[1]['merchant']
+		amount = request.json[1]['amount']
+		time = request.json[1]['time']
+		if (request.json[2]['lastTransactions']):
+			lastTransactions = request.json[2]['lastTransactions']
 		else:
 			firstTransaction = True    
-
+		
+		return {'status':'success'}
+		
 
 
 
