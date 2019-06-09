@@ -29,7 +29,12 @@ class authorization(Resource):
 			deniedReasons = "You can't exceed your limit"
 		else deniedReasons = " "
 
+#2. No transaction should be approved when the card is blocked
 
+	def checkCard(self, checkCard):
+		if self.cardIsActive !=  True:
+			deniedReasons = "Your card is blocked"
+		else deniedReasons = " "
 
 
 api.add_resource(authorization, '/authorization')
