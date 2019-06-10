@@ -13,9 +13,20 @@ api = Api(app)
 #1. The transaction amount should not be above limit
 
 def checkLimits(amount, limit):
+	#testing
+	if type(amount) not in [int, float]:
+		raise ValueError("Amount must be integers or float")
+	if type(limit) not in [int, float]:
+		raise ValueError("Limit must be integers or float")
+	if limit < 0:
+		raise ValueError("Limit cannot be negative")
+	if amount < 0:
+		raise ValueError("Amount cannot be negative")
+	
 
 	if amount>limit:
 		return "You can't exceed your limit"
+
 	else:
 		return "True"
 		
@@ -135,29 +146,29 @@ class authorization(Resource):
 		deniedReasons = []
 		
 		if checkLimitsOk != "True":
-			approved = False
+			
 			deniedReasons.append(checkLimitsOk)
 		
 		if checkCardOk != "True":
-			approved = False
+			
 			deniedReasons.append(checkCardOk)
 		
 	
 		if checkFirstTransactionOk != True:
-			approved = False
+			
 			deniedReasons.append(checkFirstTransactionOk)
 
 	
 		if securityCheckMerchantOk != True:
-			approved = False
+			
 			deniedReasons.append(securityCheckMerchantOk)
 	
 		if securityMerchantDenyListsOk != True:
-			approved = False
+			
 			deniedReasons.append(securityMerchantDenyListsOk)
 
 		if securityTransactionIntervalOk != True:
-			approved = False
+			
 			deniedReasons.append(securityTransactionIntervalOk)
 
 		
