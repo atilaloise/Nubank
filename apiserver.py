@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
-from json import dumps
+import json
 from datetime import datetime
 import re
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -49,7 +50,7 @@ def checkFirstTransaction(lastTransactions, amount, limit):
 
 def securityCheckMerchant(lastTransactions, merchant):
 
-	lastTransactions = ', '.join(lastTransactions)
+	lastTransactions = ', '.join(lastTransactions)  #we need a string to search in
 
 	MtCounter=0
 	F=True # just an aux flag 
@@ -160,45 +161,47 @@ class authorization(Resource):
 
 		#everything needs to be true to aprove transaction;
 		deniedReasons = []
+		
 		if checkLimitsOk != "True":
 			approved = False
 			deniedReasons.append(checkLimitsOk)
-		else:
-			approved = "True"
-
+		
 		if checkCardOk != "True":
 			approved = False
 			deniedReasons.append(checkCardOk)
-		else:
-			approved = "True"
+		
 	
 		if checkFirstTransactionOk != True:
 			approved = False
 			deniedReasons.append(checkFirstTransactionOk)
-		else:
-			approved = "True"
 
 	
 		if securityCheckMerchantOk != True:
 			approved = False
 			deniedReasons.append(securityCheckMerchantOk)
-		else:
-			approved = "True"
 	
 		if securityMerchantDenyListsOk != True:
 			approved = False
 			deniedReasons.append(securityMerchantDenyListsOk)
-		else:
-			approved = "True"
-	
+
 		if securityTransactionIntervalOk != True:
 			approved = False
 			deniedReasons.append(securityTransactionIntervalOk)
+
+		
+		if bool(deniedReasons):
+			approved = False
 		else:
-			approved = "True"
+			approved = True
+	
+		deniedReasons= ', '.join(deniedReasons)  #we need a string to search in
+		output = '{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": "{1}"}}'.format(approved, deniedReasons, newLimit)
+		
+		
+		output = json.loads(output)
+		
+		return output
 
-
-		print('{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": {1}}}'.format(approved, deniedReasons, newLimit))
 
 
 
@@ -207,4 +210,4 @@ api.add_resource(authorization, '/authorization')
 
 
 if __name__ == '__main__':
-     app.run()
+     app.run(debug=True)
