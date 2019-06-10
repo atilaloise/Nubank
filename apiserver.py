@@ -25,36 +25,30 @@ def checkLimits(amount, limit):
 	
 
 	if amount>limit:
-		return "You can't exceed your limit"
-
+		return False
 	else:
-		return "True"
-		
+		return True
 
 #2. No transaction should be approved when the card is blocked
-
 def checkCard(cardIsActive):
 	
 	if cardIsActive == 'True':
-		return "True"
+		return True
 	else:
-		return "Your card is blocked"
+		return False
 		
-
 #3. The first transaction shouldn't be above 90% of the limit
-
 def checkFirstTransaction(lastTransactions, amount, limit):
 	
 	if bool(lastTransactions[0]) == False:
 		if amount > limit * 0.9:
-			return "You cant use more than 90% of your limit on your first transaction"
+			return False
 		else:
 			return True
 	else:
 		return True
 
 #4. There should not be more than 10 transactions on the same merchant
-
 def securityCheckMerchant(lastTransactions, merchant):
 
 	lastTransactions = ', '.join(lastTransactions)  #we need a string to search in
@@ -71,7 +65,7 @@ def securityCheckMerchant(lastTransactions, merchant):
 	        P=a+1
 
 	if MtCounter > 10:
-		return "There should not be more than 10 transactions on the same merchant"
+		return False
 	else: 
 		return True
 	 
@@ -81,7 +75,7 @@ def securityMerchantDenyList(merchant, denylist):
 	# As we use only one merchant in a transaction, we dont need a loop here.
 	a = denylist.find(merchant) #find() will return -1 if merchant is not found
 	if a!=-1:          
-	   return "This merchant is in our deny list"
+	   return False
 	else:
 		return True
 
@@ -103,7 +97,7 @@ def securityTransactionInterval(lastTransactions, time):
 			
 				
 				if intervalSinceThirdTransaction <= 2:
-					return "Too many transactions in 2 minutes interval"
+					return False
 				else:
 					return True
 			else:
@@ -112,8 +106,6 @@ def securityTransactionInterval(lastTransactions, time):
 			return True
 	else:
 		return True
-
-
 
 class authorization(Resource):
 	def post(self):
@@ -133,36 +125,28 @@ class authorization(Resource):
 		else:
 			lastTransactions = request.json[2]['lastTransactions']
 		newLimit=limit-amount
-
-		
-		checkLimitsOk = checkLimits(amount, limit)
-		checkCardOk = checkCard(cardIsActive)
-		checkFirstTransactionOk = checkFirstTransaction(lastTransactions, amount, limit)
-		securityCheckMerchantOk = securityCheckMerchant(lastTransactions, merchant)
-		securityMerchantDenyListsOk = securityMerchantDenyList(merchant, denylist)
-		securityTransactionIntervalOk = securityTransactionInterval(lastTransactions, time)
-
-		#everything needs to be true to aprove transaction;
 		deniedReasons = []
 		approved = True
-		if checkLimitsOk != "True":
-			deniedReasons.append(checkLimitsOk)
-		if checkCardOk != "True":
-			deniedReasons.append(checkCardOk)
-		if checkFirstTransactionOk != True:
-			deniedReasons.append(checkFirstTransactionOk)
-		if securityCheckMerchantOk != True:
-			deniedReasons.append(securityCheckMerchantOk)
-		if securityMerchantDenyListsOk != True:
-			deniedReasons.append(securityMerchantDenyListsOk)
-		if securityTransactionIntervalOk != True:
-			deniedReasons.append(securityTransactionIntervalOk)
+
+		if checkLimits(amount, limit) is not True:
+			deniedReasons.append("You can't exceed your limit")
+		if checkCard(cardIsActive) is not True:
+			deniedReasons.append("Your card is blocked")
+		if checkFirstTransaction(lastTransactions, amount, limit) is not True:
+			deniedReasons.append("You cant use more than 90% of your limit on your first transaction")
+		if securityCheckMerchant(lastTransactions, merchant) is not True:
+			deniedReasons.append("There should not be more than 10 transactions on the same merchant")
+		if securityMerchantDenyList(merchant, denylist) is not True:
+			deniedReasons.append("This merchant is in our deny list")
+		if securityTransactionInterval(lastTransactions, time) is not True:
+			deniedReasons.append("Too many transactions in 2 minutes interval")
 		if bool(deniedReasons):
 			approved = False
+		
 		deniedReasons= ', '.join(deniedReasons)  #we need a string to use with json.loads method 
 		output = '{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": "{1}"}}'.format(approved, deniedReasons, newLimit)
-		output = json.loads(output)
-		return output
+		
+		return json.loads(output)
 
 #Api Routes
 api.add_resource(authorization, '/authorization')
