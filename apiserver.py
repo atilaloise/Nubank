@@ -12,20 +12,19 @@ api = Api(app)
 #1. The transaction amount should not be above limit
 
 def checkLimits(amount, limit):
-	print(amount)
-	print(limit)
+
 	if amount>limit:
 		return "You can't exceed your limit"
 	else:
-		return True
+		return "True"
 		
 
 #2. No transaction should be approved when the card is blocked
 
 def checkCard(cardIsActive):
-	print(cardIsActive)
+	
 	if cardIsActive == 'True':
-		return True
+		return "True"
 	else:
 		return "Your card is blocked"
 		
@@ -49,8 +48,7 @@ def checkFirstTransaction(lastTransactions, amount, limit):
 #4. There should not be more than 10 transactions on the same merchant
 
 def securityCheckMerchant(lastTransactions, merchant):
-	print(lastTransactions)
-	print(merchant)
+
 	lastTransactions = ', '.join(lastTransactions)
 
 	MtCounter=0
@@ -93,9 +91,7 @@ def securityTransactionInterval(lastTransactions, time):
 				d1 = datetime.strptime(thirdLastTransactionDateTime[0], fmt)
 				d2 = datetime.strptime(time, fmt)
 				intervalSinceThirdTransaction = (d2-d1).seconds /60
-				
-				print(intervalSinceThirdTransaction)
-				print(type(intervalSinceThirdTransaction))
+			
 				
 				if intervalSinceThirdTransaction <= 2:
 					return "Too many transactions in 2 minutes interval"
@@ -127,6 +123,7 @@ class authorization(Resource):
 			lastTransactions = False
 		else:
 			lastTransactions = request.json[2]['lastTransactions']
+		newLimit=limit-amount
 
 			
 		#return (checkLimits(amount, limit))
@@ -134,16 +131,74 @@ class authorization(Resource):
 		#return (checkFirstTransaction(lastTransactions, amount, limit))
 		#return (securityCheckMerchant(lastTransactions, merchant))
 		#return (securityMerchantDenyList(merchant, denylist))
-		return (securityTransactionInterval(lastTransactions, time))
+		#return (securityTransactionInterval(lastTransactions, time))
 		
+		checkLimitsOk = checkLimits(amount, limit)
+		checkCardOk = checkCard(cardIsActive)
+		checkFirstTransactionOk = checkFirstTransaction(lastTransactions, amount, limit)
+		securityCheckMerchantOk = securityCheckMerchant(lastTransactions, merchant)
+		securityMerchantDenyListsOk = securityMerchantDenyList(merchant, denylist)
+		securityTransactionIntervalOk = securityTransactionInterval(lastTransactions, time)
+
+		# print(checkLimitsOk)
+		# print(type(checkLimitsOk))
+
+		# print(checkCardOk)
+		# print(type(checkCardOk))
+
+		# print(checkFirstTransactionOk)
+		# print(type(checkFirstTransactionOk))
+
+		# print(securityCheckMerchantOk)
+		# print(type(securityCheckMerchantOk))
+
+		# print(securityMerchantDenyListsOk)
+		# print(type(securityMerchantDenyListsOk))
+
+		# print(securityTransactionIntervalOk)
+		# print(type(securityTransactionIntervalOk))
+
+		#everything needs to be true to aprove transaction;
+		deniedReasons = []
+		if checkLimitsOk != "True":
+			approved = False
+			deniedReasons.append(checkLimitsOk)
+		else:
+			approved = "True"
+
+		if checkCardOk != "True":
+			approved = False
+			deniedReasons.append(checkCardOk)
+		else:
+			approved = "True"
+	
+		if checkFirstTransactionOk != True:
+			approved = False
+			deniedReasons.append(checkFirstTransactionOk)
+		else:
+			approved = "True"
+
+	
+		if securityCheckMerchantOk != True:
+			approved = False
+			deniedReasons.append(securityCheckMerchantOk)
+		else:
+			approved = "True"
+	
+		if securityMerchantDenyListsOk != True:
+			approved = False
+			deniedReasons.append(securityMerchantDenyListsOk)
+		else:
+			approved = "True"
+	
+		if securityTransactionIntervalOk != True:
+			approved = False
+			deniedReasons.append(securityTransactionIntervalOk)
+		else:
+			approved = "True"
 
 
-
-
-
-		#return {'status':'success'}
-
-		
+		print('{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": {1}}}'.format(approved, deniedReasons, newLimit))
 
 
 
