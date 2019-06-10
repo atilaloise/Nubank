@@ -135,8 +135,6 @@ class authorization(Resource):
 		newLimit=limit-amount
 		deniedReasons = []
 		approved = True
-
-
 		if checkLimits(amount, limit) is not True:
 			deniedReasons.append("You can't exceed your limit")
 		if checkCard(cardIsActive) is not True:
@@ -151,6 +149,7 @@ class authorization(Resource):
 			deniedReasons.append("Too many transactions in 2 minutes interval")
 		if bool(deniedReasons):
 			approved = False
+			newLimit=limit
 		
 		deniedReasons= ', '.join(deniedReasons)  #we need a string to use with json.loads method 
 		output = '{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": "{1}"}}'.format(approved, deniedReasons, newLimit)
