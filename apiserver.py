@@ -33,11 +33,7 @@ def checkCard(cardIsActive):
 #3. The first transaction shouldn't be above 90% of the limit
 
 def checkFirstTransaction(lastTransactions, amount, limit):
-	# print(amount)
-	# print(limit)
-	# print(lastTransactions[0])
-	# print(type(lastTransactions[0]))
-	# print(bool(lastTransactions[0]))
+	
 	if bool(lastTransactions[0]) == False:
 		if amount > limit * 0.9:
 			return "You cant use more than 90% of your limit on your first transaction"
@@ -127,13 +123,6 @@ class authorization(Resource):
 			lastTransactions = request.json[2]['lastTransactions']
 		newLimit=limit-amount
 
-			
-		#return (checkLimits(amount, limit))
-		#return (checkCard(cardIsActive))
-		#return (checkFirstTransaction(lastTransactions, amount, limit))
-		#return (securityCheckMerchant(lastTransactions, merchant))
-		#return (securityMerchantDenyList(merchant, denylist))
-		#return (securityTransactionInterval(lastTransactions, time))
 		
 		checkLimitsOk = checkLimits(amount, limit)
 		checkCardOk = checkCard(cardIsActive)
@@ -141,24 +130,6 @@ class authorization(Resource):
 		securityCheckMerchantOk = securityCheckMerchant(lastTransactions, merchant)
 		securityMerchantDenyListsOk = securityMerchantDenyList(merchant, denylist)
 		securityTransactionIntervalOk = securityTransactionInterval(lastTransactions, time)
-
-		# print(checkLimitsOk)
-		# print(type(checkLimitsOk))
-
-		# print(checkCardOk)
-		# print(type(checkCardOk))
-
-		# print(checkFirstTransactionOk)
-		# print(type(checkFirstTransactionOk))
-
-		# print(securityCheckMerchantOk)
-		# print(type(securityCheckMerchantOk))
-
-		# print(securityMerchantDenyListsOk)
-		# print(type(securityMerchantDenyListsOk))
-
-		# print(securityTransactionIntervalOk)
-		# print(type(securityTransactionIntervalOk))
 
 		#everything needs to be true to aprove transaction;
 		deniedReasons = []
