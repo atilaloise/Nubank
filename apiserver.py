@@ -128,7 +128,7 @@ class authorization(Resource):
 		merchant = request.json[1]['merchant']
 		amount = float(request.json[1]['amount'])
 		time = request.json[1]['time']
-		if (request.json[2]['lastTransactions']) =="":
+		if (request.json[2]['lastTransactions']) == '':
 			lastTransactions = False
 		else:
 			lastTransactions = request.json[2]['lastTransactions']
