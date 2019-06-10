@@ -71,6 +71,7 @@ def securityCheckMerchant(lastTransactions, merchant):
 #5. Merchant denylist
 def securityMerchantDenyList(merchant, denylist):
 	denylist = ', '.join(denylist)
+	# As we use only one merchant in a transaction, we dont need a loop here.
 	a = denylist.find(merchant) #find() will return -1 if merchant is not found
 	if a!=-1:          
 	   return "This merchant is in our deny list"
@@ -194,7 +195,7 @@ class authorization(Resource):
 		else:
 			approved = True
 	
-		deniedReasons= ', '.join(deniedReasons)  #we need a string to search in
+		deniedReasons= ', '.join(deniedReasons)  #we need a string to use with json.loads method 
 		output = '{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": "{1}"}}'.format(approved, deniedReasons, newLimit)
 		
 		
