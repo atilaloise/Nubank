@@ -144,53 +144,27 @@ class authorization(Resource):
 
 		#everything needs to be true to aprove transaction;
 		deniedReasons = []
-		
+		approved = True
 		if checkLimitsOk != "True":
-			
 			deniedReasons.append(checkLimitsOk)
-		
 		if checkCardOk != "True":
-			
 			deniedReasons.append(checkCardOk)
-		
-	
 		if checkFirstTransactionOk != True:
-			
 			deniedReasons.append(checkFirstTransactionOk)
-
-	
 		if securityCheckMerchantOk != True:
-			
 			deniedReasons.append(securityCheckMerchantOk)
-	
 		if securityMerchantDenyListsOk != True:
-			
 			deniedReasons.append(securityMerchantDenyListsOk)
-
 		if securityTransactionIntervalOk != True:
-			
 			deniedReasons.append(securityTransactionIntervalOk)
-
-		
 		if bool(deniedReasons):
 			approved = False
-		else:
-			approved = True
-	
 		deniedReasons= ', '.join(deniedReasons)  #we need a string to use with json.loads method 
 		output = '{{"approved": "{0}", "newLimit": "{2}", "deniedReasons": "{1}"}}'.format(approved, deniedReasons, newLimit)
-		
-		
 		output = json.loads(output)
-		
 		return output
-
-
-
 
 #Api Routes
 api.add_resource(authorization, '/authorization')
-
-
 if __name__ == '__main__':
      app.run(debug=True)
