@@ -22,8 +22,6 @@ def checkLimits(amount, limit):
 		raise ValueError("Limit cannot be negative")
 	if amount < 0:
 		raise ValueError("Amount cannot be negative")
-	
-
 	if amount>limit:
 		return False
 	else:
@@ -31,16 +29,19 @@ def checkLimits(amount, limit):
 
 #2. No transaction should be approved when the card is blocked
 def checkCard(cardIsActive):
+	if type(cardIsActive) not in [bool]:
+		raise ValueError("This Function only works with booleans")
 	
-	if cardIsActive == 'True':
+	if cardIsActive:
 		return True
 	else:
 		return False
 		
 #3. The first transaction shouldn't be above 90% of the limit
 def checkFirstTransaction(lastTransactions, amount, limit):
-	
-	if bool(lastTransactions[0]) == False:
+	if type(lastTransactions) not in [bool]:
+		raise ValueError("lastTransactions must be boolean")
+	if bool(lastTransactions) is not True:
 		if amount > limit * 0.9:
 			return False
 		else:
@@ -50,9 +51,11 @@ def checkFirstTransaction(lastTransactions, amount, limit):
 
 #4. There should not be more than 10 transactions on the same merchant
 def securityCheckMerchant(lastTransactions, merchant):
-
+	if type(lastTransactions) not in [list]:
+		raise ValueError("lastTransactions must be a list")
+	if type(merchant) not in [str]:
+		raise ValueError("lastTransactions must be a String")
 	lastTransactions = ', '.join(lastTransactions)  #we need a string to search in
-
 	MtCounter=0
 	F=True # just an aux flag 
 	P=0 # Just a index position reference
@@ -63,7 +66,6 @@ def securityCheckMerchant(lastTransactions, merchant):
 	    else:               # if word is there, increase index counter and stay in loop
 	        MtCounter+=1 # Merchant Transaction Counter :P
 	        P=a+1
-
 	if MtCounter > 10:
 		return False
 	else: 
@@ -71,6 +73,10 @@ def securityCheckMerchant(lastTransactions, merchant):
 	 
 #5. Merchant denylist
 def securityMerchantDenyList(merchant, denylist):
+	if type(denylist) not in [list]:
+		raise ValueError("denylist must be a list")
+	if type(merchant) not in [str]:
+		raise ValueError("merchant must be a String")
 	denylist = ', '.join(denylist)
 	# As we use only one merchant in a transaction, we dont need a loop here.
 	a = denylist.find(merchant) #find() will return -1 if merchant is not found
@@ -81,21 +87,20 @@ def securityMerchantDenyList(merchant, denylist):
 
 #6. There should not be more than 3 transactions on a 2 minutes interval   
 def securityTransactionInterval(lastTransactions, time):
-
+	if type(lastTransactions) not in [list]:
+		raise ValueError("lastTransactions must be a list")
+	if type(time) not in [str]:
+		raise ValueError("time must be a String")
 	if (lastTransactions):
 		if len(lastTransactions)>2:
 			#get the third transaction datetime
 			thirdLastTransaction = lastTransactions[2] 
-		
 			if (thirdLastTransaction):
-
 				fmt = '%Y-%m-%d %H:%M:%S'
 				thirdLastTransactionDateTime = re.findall(r'\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}', thirdLastTransaction)	
 				d1 = datetime.strptime(thirdLastTransactionDateTime[0], fmt)
 				d2 = datetime.strptime(time, fmt)
 				intervalSinceThirdTransaction = (d2-d1).seconds /60
-			
-				
 				if intervalSinceThirdTransaction <= 2:
 					return False
 				else:
@@ -113,7 +118,10 @@ class authorization(Resource):
 		#everything is comming as string, so don't forget to convert data types
 		#I do not convert booleans because if the variable has a value, python always consider as true. So, let this as string.
 		#if there is something specific, we treat on the fly :P
-		cardIsActive = request.json[0]['cardIsActive']
+		if request.json[0]['cardIsActive'] == "True":
+			cardIsActive = True
+		else:
+			cardIsActive = False
 		limit = float(request.json[0]['limit'])
 		denylist = request.json[0]['denylist']
 		isInsideAllowlist = request.json[0]['isInsideAllowlist']
@@ -128,11 +136,12 @@ class authorization(Resource):
 		deniedReasons = []
 		approved = True
 
+
 		if checkLimits(amount, limit) is not True:
 			deniedReasons.append("You can't exceed your limit")
 		if checkCard(cardIsActive) is not True:
 			deniedReasons.append("Your card is blocked")
-		if checkFirstTransaction(lastTransactions, amount, limit) is not True:
+		if checkFirstTransaction(bool(lastTransactions), amount, limit) is not True:
 			deniedReasons.append("You cant use more than 90% of your limit on your first transaction")
 		if securityCheckMerchant(lastTransactions, merchant) is not True:
 			deniedReasons.append("There should not be more than 10 transactions on the same merchant")
@@ -151,4 +160,4 @@ class authorization(Resource):
 #Api Routes
 api.add_resource(authorization, '/authorization')
 if __name__ == '__main__':
-     app.run(debug=True)
+     app.run(host= '0.0.0.0')
