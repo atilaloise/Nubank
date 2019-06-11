@@ -22,7 +22,7 @@ foo@bar:~$ docker run -ti -p 5000:5000 nubankexercise
 foo@bar:~$ pip3 install flask flask-jsonpify flask-restful datetime
 ```
 
-### Run App with pithon3
+### Run App with python3
 
 ```console
 foo@bar:~$ python3 apiserver.py
