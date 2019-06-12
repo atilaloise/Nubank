@@ -14,6 +14,9 @@ foo@bar:~$ docker build -t nubankexercise .
 foo@bar:~$ docker run -ti -p 5000:5000 nubankexercise
 ```
 
+While the container is running, you can send POST to http://localhost:5000/autorization
+
+
 ## Run directly in your shell
 
 ### Install dependencies
@@ -27,7 +30,7 @@ foo@bar:~$ pip3 install flask flask-jsonpify flask-restful datetime
 ```console
 foo@bar:~$ python3 apiserver.py
 ```
-
+While running, you can send POST to http://localhost:5000/autorization
 
 ## Running tests
 
