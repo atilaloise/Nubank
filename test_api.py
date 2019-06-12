@@ -70,8 +70,8 @@ class TestSecurityCheckMerchant(unittest.TestCase):
 
 class TestSecurityMerchantDenyList(unittest.TestCase):
 	def test_checkSecurityMerchantDenyList(self):
- 		self.assertEqual(securityMerchantDenyList( "Boteco do Tonho", [ "boteco do claudio", "boteco do zé" ]), True)
- 		self.assertEqual(securityMerchantDenyList( "Boteco do Tonho", [ "boteco do jão", "boteco do claudio", "Boteco do Tonho" ]), False)
+ 		self.assertEqual(securityMerchantDenyList( "Boteco do Tonho", [ "boteco do claudio", "boteco do zé" ]), False)
+ 		self.assertEqual(securityMerchantDenyList( "Boteco do Tonho", [ "boteco do jão", "boteco do claudio", "Boteco do Tonho" ]), True)
  		
 	def test_checkSecurityMerchantDenyListTypeValue(self):
 		self.assertRaises(ValueError, securityMerchantDenyList, "12", 1)

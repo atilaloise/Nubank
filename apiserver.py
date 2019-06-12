@@ -77,14 +77,9 @@ def securityMerchantDenyList(merchant, denylist):
 		raise ValueError("denylist must be a list")
 	if type(merchant) not in [str]:
 		raise ValueError("merchant must be a String")
-	denylist = ', '.join(denylist)
-	# As we use only one merchant in a transaction, we dont need a loop here.
-	a = denylist.find(merchant) #find() will return -1 if merchant is not found
-	if a!=-1:          
-	   return False
-	else:
-		return True
-
+	
+	return merchant in denylist
+	
 #6. There should not be more than 3 transactions on a 2 minutes interval   
 def securityTransactionInterval(lastTransactions, time):
 	if type(lastTransactions) not in [list]:
@@ -135,6 +130,7 @@ class authorization(Resource):
 		newLimit=limit-amount
 		deniedReasons = []
 		approved = True
+
 		if checkLimits(amount, limit) is not True:
 			deniedReasons.append("You can't exceed your limit")
 		if checkCard(cardIsActive) is not True:
@@ -143,7 +139,7 @@ class authorization(Resource):
 			deniedReasons.append("You cant use more than 90% of your limit on your first transaction")
 		if securityCheckMerchant(lastTransactions, merchant) is not True:
 			deniedReasons.append("There should not be more than 10 transactions on the same merchant")
-		if securityMerchantDenyList(merchant, denylist) is not True:
+		if securityMerchantDenyList(merchant, denylist) is True:
 			deniedReasons.append("This merchant is in our deny list")
 		if securityTransactionInterval(lastTransactions, time) is not True:
 			deniedReasons.append("Too many transactions in 2 minutes interval")
