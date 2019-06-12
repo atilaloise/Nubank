@@ -10,7 +10,6 @@ RUN apk add --update python3 shadow && \
 RUN groupadd -g 1005 appuser && \
     useradd -r -u 1005 -g appuser appuser
 
-RUN mkdir -p /var/cache/samba && chmod 0755 /var/cache/samba && chown appuser /var/cache/samba
 USER appuser
 
 
